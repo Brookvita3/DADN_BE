@@ -1,10 +1,7 @@
 package com.example.QLNK.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,25 +14,29 @@ import java.util.Collections;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(name = "user_name")
-    private String userName;
+    private String username;
 
     @Column(name = "pass_word")
-    private String passWord;
+    private String password;
 
     @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "api_key")
-    private String apiKey;
+    private String apikey;
 
     @Column(name = "url_ava")
-    private String urlAva;
+    private String urlava;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private RefreshToken refreshToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -44,11 +45,11 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return passWord;
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 }
