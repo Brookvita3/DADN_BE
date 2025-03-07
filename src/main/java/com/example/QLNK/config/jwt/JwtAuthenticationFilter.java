@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         catch (Exception e) {
-            System.out.println("Lỗi xác thực JWT: " + e.getMessage());
+            System.out.println("Fail in validate token: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

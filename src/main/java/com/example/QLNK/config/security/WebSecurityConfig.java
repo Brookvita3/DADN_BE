@@ -1,6 +1,7 @@
 package com.example.QLNK.config.security;
 
 import com.example.QLNK.config.jwt.JwtAuthenticationFilter;
+import com.example.QLNK.config.jwt.JwtEntryPoint;
 import com.example.QLNK.config.jwt.JwtUtils;
 import com.example.QLNK.model.User;
 import com.example.QLNK.repositories.UserRepository;
@@ -28,17 +29,19 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class WebSecurityConfig {
 
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtEntryPoint jwtEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers( "/", "/auth/register", "/auth/login", "/auth/refresh-token").permitAll()
+                .requestMatchers( "/", "/auth/**").permitAll()
+                .requestMatchers("/auth/logout").authenticated()
                 .anyRequest().authenticated()
         );
 
@@ -58,7 +61,13 @@ public class SecurityConfig {
                     DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
                     String email = (String) oAuth2User.getAttributes().get("email");
+                    String avatarUrl = (String) oAuth2User.getAttributes().get("picture");
                     User user = userRepository.findByEmail(email).orElseThrow();
+
+                    if (user.getUrlava() == null || user.getUrlava().isEmpty()) {
+                        user.setUrlava(avatarUrl);
+                        userRepository.save(user);
+                    }
 
                     String role = (user.getUsername() == null || user.getApikey() == null) ? "INCOMPLETE_USER" : "USER";
                     String jwt = jwtUtils.generateAccessTokenWithRole(email, role);
@@ -72,6 +81,8 @@ public class SecurityConfig {
                 })
         );
 
+        http.exceptionHandling((exception ->
+                exception.authenticationEntryPoint(jwtEntryPoint)));
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 

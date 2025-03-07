@@ -4,9 +4,9 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class TokenExpiredException extends RuntimeException{
+public class EmailException extends RuntimeException {
     private final HttpStatus httpStatus;
-    public TokenExpiredException(String message, HttpStatus httpStatus) {
+    public EmailException(String message, HttpStatus httpStatus) {
         super(message);
         this.httpStatus = httpStatus;
     }

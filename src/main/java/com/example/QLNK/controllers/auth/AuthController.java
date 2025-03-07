@@ -3,7 +3,6 @@ package com.example.QLNK.controllers.auth;
 import com.example.QLNK.DTOS.token.RefreshTokenRequestDTO;
 import com.example.QLNK.DTOS.user.LoginUserDTO;
 import com.example.QLNK.DTOS.user.RegisterUserDTO;
-import com.example.QLNK.exception.CustomAuthException;
 import com.example.QLNK.exception.TokenExpiredException;
 import com.example.QLNK.model.User;
 import com.example.QLNK.response.auth.AuthResponse;
@@ -31,95 +30,53 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginUserDTO loginRequest) {
-        try {
-            AuthResponse authResponse = authService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
-            return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                    .message("Login successful")
-                    .status(HttpStatus.OK)
-                    .data(authResponse)
-                    .build());
-        } catch (CustomAuthException e) {
-            return ResponseEntity.status(e.getHttpStatus()).body(
-                    ResponseObject.builder()
-                            .message(e.getMessage())
-                            .status(e.getHttpStatus())
-                            .data(null)
-                            .build()
-            );
-        }
+        AuthResponse authResponse = authService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("Login successful")
+                .status(HttpStatus.OK)
+                .data(authResponse)
+                .build());
+
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody RefreshTokenRequestDTO requestDTO) throws TokenExpiredException {
-        try {
-            AuthResponse authResponse = authService.verifyRefreshToken(requestDTO);
-            return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                    .message("New refresh token + access token")
-                    .status(HttpStatus.OK)
-                    .data(authResponse)
-                    .build());
-
-        } catch (CustomAuthException e) {
-            return ResponseEntity.status(e.getHttpStatus()).body(
-                    ResponseObject.builder()
-                            .message(e.getMessage())
-                            .status(e.getHttpStatus())
-                            .data(null)
-                            .build()
-            );
-        }
+    public ResponseEntity<?> refreshAccessToken(@Valid @RequestBody RefreshTokenRequestDTO requestDTO) throws TokenExpiredException {
+        AuthResponse authResponse = authService.verifyRefreshToken(requestDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("New refresh token + access token")
+                .status(HttpStatus.OK)
+                .data(authResponse)
+                .build());
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterUserDTO registerUserDTO) {
-        try {
-            authService.registerUser(registerUserDTO);
-            return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                    .message("Register successful")
-                    .status(HttpStatus.OK)
-                    .data(registerUserDTO)
-                    .build());
-        }
-        catch (CustomAuthException e) {
-            return ResponseEntity.status(e.getHttpStatus()).body(
-                    ResponseObject.builder()
-                            .message(e.getMessage())
-                            .status(e.getHttpStatus())
-                            .data(null)
-                            .build()
-            );
-        }
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterUserDTO registerUserDTO) {
+        authService.registerUser(registerUserDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("Register successful")
+                .status(HttpStatus.OK)
+                .data(registerUserDTO)
+                .build());
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        try{
-            User user = authService.getAuthenticatedUser(authentication);
-            authService.logOut(request, response, authentication);
+        User user = authService.getAuthenticatedUser(authentication);
+        authService.logOut(request, response, authentication);
 
-            // Xóa cookie refresh_token
-            Cookie refreshTokenCookie = new Cookie("refresh_token", null);
-            refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setSecure(true);
-            refreshTokenCookie.setPath("/");
-            refreshTokenCookie.setMaxAge(0); // Xoá cookie ngay lập tức
-            response.addCookie(refreshTokenCookie);
+        // Xóa cookie refresh_token
+        Cookie refreshTokenCookie = new Cookie("refresh_token", null);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0); // Xoá cookie ngay lập tức
+        response.addCookie(refreshTokenCookie);
 
-            return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                    .status(HttpStatus.OK)
-                    .message("Logout successful")
-                    .data(null)
-                    .build());
-        }
-        catch (CustomAuthException e) {
-            return ResponseEntity.status(e.getHttpStatus()).body(
-                    ResponseObject.builder()
-                            .message(e.getMessage())
-                            .status(e.getHttpStatus())
-                            .data(null)
-                            .build()
-            );
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .status(HttpStatus.OK)
+                .message("Logout successful")
+                .data(null)
+                .build());
     }
 
     @GetMapping("/google/login")
