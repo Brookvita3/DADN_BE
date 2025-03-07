@@ -9,6 +9,7 @@ import com.example.QLNK.model.User;
 import com.example.QLNK.response.auth.AuthResponse;
 import com.example.QLNK.response.ResponseObject;
 import com.example.QLNK.services.auth.AuthService;
+import com.example.QLNK.services.users.CustomUserDetailService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +31,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final CustomUserDetailService customUserDetailService;
     private final JwtUtils jwtUtils;
 
     @PostMapping("/login")
@@ -54,7 +56,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterUserDTO registerUserDTO) {
-        authService.registerUser(registerUserDTO);
+        customUserDetailService.registerUser(registerUserDTO);
         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                 .message("Register successful")
                 .status(HttpStatus.OK)
@@ -90,7 +92,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam String email) {
-        authService.forgotPassword(email);
+        customUserDetailService.forgotPassword(email);
         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                 .message("Reset Password mail is sent")
                 .status(HttpStatus.OK)
@@ -113,7 +115,7 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
         String email = jwtUtils.extractEmail(token);
-        authService.resetPassword(email, newPassword);
+        customUserDetailService.resetPassword(email, newPassword);
         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                 .message("Reset Password successful")
                 .status(HttpStatus.OK)

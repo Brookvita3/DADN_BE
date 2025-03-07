@@ -1,6 +1,5 @@
 package com.example.QLNK.config.security;
 
-import com.example.QLNK.repositories.UserRepository;
 import com.example.QLNK.services.users.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -15,13 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AuthConfig {
-    private final UserRepository userRepository;
-
-    @Bean
-    public CustomUserDetailService customUserDetailService(UserRepository userRepository) {
-        return new CustomUserDetailService(userRepository);
-    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
