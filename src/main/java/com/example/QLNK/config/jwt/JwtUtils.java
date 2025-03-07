@@ -14,6 +14,7 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -96,4 +97,12 @@ public class JwtUtils {
         }
     }
 
+    public String generatePasswordToken(String email) {
+        return Jwts.builder()
+                .subject(email)
+                .claim("id", UUID.randomUUID().toString())
+                .expiration(new Date(System.currentTimeMillis() + 5 * 60 * 1000)) // 15 phút
+                .signWith(key)
+                .compact();
+    }
 }

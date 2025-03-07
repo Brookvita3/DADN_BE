@@ -3,6 +3,7 @@ package com.example.QLNK.controllers.auth;
 import com.example.QLNK.DTOS.token.RefreshTokenRequestDTO;
 import com.example.QLNK.DTOS.user.LoginUserDTO;
 import com.example.QLNK.DTOS.user.RegisterUserDTO;
+import com.example.QLNK.config.jwt.JwtUtils;
 import com.example.QLNK.exception.TokenExpiredException;
 import com.example.QLNK.model.User;
 import com.example.QLNK.response.auth.AuthResponse;
@@ -19,6 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 // Nho tach service ra khoi controller
@@ -27,6 +30,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final JwtUtils jwtUtils;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginUserDTO loginRequest) {
@@ -36,7 +40,6 @@ public class AuthController {
                 .status(HttpStatus.OK)
                 .data(authResponse)
                 .build());
-
     }
 
     @PostMapping("/refresh-token")
@@ -82,6 +85,40 @@ public class AuthController {
     @GetMapping("/google/login")
     public void loginWithGoogle(HttpServletResponse response) throws IOException {
         response.sendRedirect("/oauth2/authorization/google");
+    }
+
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        authService.forgotPassword(email);
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("Reset Password mail is sent")
+                .status(HttpStatus.OK)
+                .data(null)
+                .build());
+    }
+
+    @GetMapping("/reset-password")
+    public ResponseEntity<?> verifyPasswordToken(@RequestParam String token) {
+        String email = jwtUtils.extractEmail(token);
+        Map<String, String> response = new HashMap<String, String>();
+        response.put("email", email);
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("PasswordToken is valid")
+                .status(HttpStatus.OK)
+                .data(response)
+                .build());
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+        String email = jwtUtils.extractEmail(token);
+        authService.resetPassword(email, newPassword);
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("Reset Password successful")
+                .status(HttpStatus.OK)
+                .data("New password: " + newPassword)
+                .build());
     }
 
 

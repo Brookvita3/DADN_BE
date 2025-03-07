@@ -3,10 +3,10 @@ package com.example.QLNK.controllers.users;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/home")
+@RequestMapping("/users")
 public class UserController {
 
-    @GetMapping
+    @GetMapping("/home")
     public String homePage() {
         return "Welcome to the Home Page!";
     }

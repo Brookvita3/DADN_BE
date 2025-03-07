@@ -36,6 +36,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
+    private final static String link = "http://localhost:8080";
+
     public void registerUser(RegisterUserDTO registerDTO) {
         if (userRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
             throw new CustomAuthException("Email already register", HttpStatus.UNAUTHORIZED);
@@ -60,6 +62,8 @@ public class AuthService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             User user = (User) authentication.getPrincipal();
+
+            refreshTokenService.revokeRefreshTokenByEmail(user.getEmail());
 
             String accessToken = jwtUtils.generateAccessTokenWithRole(user.getEmail(), "USER");
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
@@ -108,5 +112,24 @@ public class AuthService {
         refreshTokenService.revokeRefreshTokenByEmail(user.getEmail());
 
         new SecurityContextLogoutHandler().logout(request, response, authentication);
+    }
+
+    public void forgotPassword(String email) {
+        String token = jwtUtils.generatePasswordToken(email);
+        String resetLink = link + "/auth/reset-password?token=" + token;
+
+        try {
+            emailService.sendMailToUser(email, "Reset your password", "Click the link to reset your password: " + resetLink);
+        } catch (Exception e) {
+            throw new EmailException("Error when send magic link mail", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new CustomAuthException("Email are not sign up", HttpStatus.UNAUTHORIZED));
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
     }
 }
