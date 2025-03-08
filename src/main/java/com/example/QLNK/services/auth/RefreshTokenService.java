@@ -1,8 +1,8 @@
 package com.example.QLNK.services.auth;
 
 import com.example.QLNK.exception.TokenExpiredException;
-import com.example.QLNK.model.RefreshToken;
-import com.example.QLNK.model.User;
+import com.example.QLNK.model.token.RefreshToken;
+import com.example.QLNK.model.user.User;
 import com.example.QLNK.repositories.RefreshTokenRepository;
 import com.example.QLNK.repositories.UserRepository;
 import jakarta.transaction.Transactional;

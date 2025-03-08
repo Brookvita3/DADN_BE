@@ -5,7 +5,7 @@ import com.example.QLNK.config.jwt.JwtUtils;
 import com.example.QLNK.exception.CustomAuthException;
 import com.example.QLNK.exception.EmailException;
 import com.example.QLNK.mapper.UserMapper;
-import com.example.QLNK.model.User;
+import com.example.QLNK.model.user.User;
 import com.example.QLNK.repositories.UserRepository;
 import com.example.QLNK.services.email.EmailService;
 import lombok.AllArgsConstructor;
@@ -68,7 +68,4 @@ public class CustomUserDetailService implements UserDetailsService {
             throw new EmailException("Error when send magic link mail", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-
 }

@@ -1,5 +1,6 @@
-package com.example.QLNK.model;
+package com.example.QLNK.model.user;
 
+import com.example.QLNK.model.token.RefreshToken;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

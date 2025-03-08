@@ -5,7 +5,7 @@ import com.example.QLNK.DTOS.user.LoginUserDTO;
 import com.example.QLNK.DTOS.user.RegisterUserDTO;
 import com.example.QLNK.config.jwt.JwtUtils;
 import com.example.QLNK.exception.TokenExpiredException;
-import com.example.QLNK.model.User;
+import com.example.QLNK.model.user.User;
 import com.example.QLNK.response.auth.AuthResponse;
 import com.example.QLNK.response.ResponseObject;
 import com.example.QLNK.services.auth.AuthService;

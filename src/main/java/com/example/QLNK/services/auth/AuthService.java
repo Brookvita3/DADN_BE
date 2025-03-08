@@ -4,10 +4,9 @@ import com.example.QLNK.DTOS.token.RefreshTokenRequestDTO;
 import com.example.QLNK.config.jwt.JwtUtils;
 import com.example.QLNK.exception.CustomAuthException;
 import com.example.QLNK.exception.TokenExpiredException;
-import com.example.QLNK.model.RefreshToken;
-import com.example.QLNK.model.User;
+import com.example.QLNK.model.token.RefreshToken;
+import com.example.QLNK.model.user.User;
 import com.example.QLNK.response.auth.AuthResponse;
-import com.example.QLNK.services.email.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
-    private final EmailService emailService;
-
 
     public AuthResponse authenticateUser(String email, String password) {
         try {
@@ -61,7 +58,6 @@ public class AuthService {
         String newAccessToken = jwtUtils.generateAccessTokenWithRole(refreshToken.getUser().getEmail(), "USER");
 
         return new AuthResponse(newAccessToken, requestDTO.getRefreshToken());
-
     }
 
 

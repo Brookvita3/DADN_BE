@@ -1,7 +1,7 @@
 package com.example.QLNK.mapper;
 
 import com.example.QLNK.DTOS.user.RegisterUserDTO;
-import com.example.QLNK.model.User;
+import com.example.QLNK.model.user.User;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

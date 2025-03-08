@@ -1,7 +1,7 @@
 package com.example.QLNK.repositories;
 
-import com.example.QLNK.model.RefreshToken;
-import com.example.QLNK.model.User;
+import com.example.QLNK.model.token.RefreshToken;
+import com.example.QLNK.model.user.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

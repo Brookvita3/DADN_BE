@@ -3,7 +3,7 @@ package com.example.QLNK.config.security;
 import com.example.QLNK.config.jwt.JwtAuthenticationFilter;
 import com.example.QLNK.config.jwt.JwtEntryPoint;
 import com.example.QLNK.config.jwt.JwtUtils;
-import com.example.QLNK.model.User;
+import com.example.QLNK.model.user.User;
 import com.example.QLNK.repositories.UserRepository;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;

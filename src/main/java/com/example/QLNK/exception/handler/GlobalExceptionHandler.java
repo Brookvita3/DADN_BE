@@ -1,6 +1,7 @@
 package com.example.QLNK.exception.handler;
 
 import com.example.QLNK.exception.CustomAuthException;
+import com.example.QLNK.exception.DataNotFoundException;
 import com.example.QLNK.exception.EmailException;
 import com.example.QLNK.exception.TokenExpiredException;
 import com.example.QLNK.response.ResponseObject;
@@ -57,6 +58,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<ResponseObject> handleTokenExpiredException(TokenExpiredException ex) {
+        return ResponseEntity.status(ex.getHttpStatus()).body(
+                ResponseObject.builder()
+                        .message(ex.getMessage())
+                        .status(ex.getHttpStatus())
+                        .data(null)
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<ResponseObject> handleDataNotFoundException(DataNotFoundException ex) {
         return ResponseEntity.status(ex.getHttpStatus()).body(
                 ResponseObject.builder()
                         .message(ex.getMessage())

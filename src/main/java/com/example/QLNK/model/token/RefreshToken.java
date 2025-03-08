@@ -1,5 +1,6 @@
-package com.example.QLNK.model;
+package com.example.QLNK.model.token;
 
+import com.example.QLNK.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

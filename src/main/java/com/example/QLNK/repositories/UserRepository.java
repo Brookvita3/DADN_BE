@@ -1,6 +1,6 @@
 package com.example.QLNK.repositories;
 
-import com.example.QLNK.model.User;
+import com.example.QLNK.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
