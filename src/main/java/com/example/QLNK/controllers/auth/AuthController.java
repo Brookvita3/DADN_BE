@@ -45,10 +45,15 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshAccessToken(@Valid @RequestBody RefreshTokenRequestDTO requestDTO) throws TokenExpiredException {
-        AuthResponse authResponse = authService.verifyRefreshToken(requestDTO);
+    public ResponseEntity<?> refreshAccessToken(@RequestHeader("Authorization") String authHeader,
+                                                @Valid @RequestBody RefreshTokenRequestDTO requestDTO) {
+        String accessToken = authHeader.replace("Bearer ", "");
+        AuthResponse authResponse = authService.verifyRefreshToken(accessToken, requestDTO.getRefreshToken());
+        String message = authResponse.getRefreshToken() != null
+                ? "New refresh token + access token"
+                : "New access token";
         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                .message("New refresh token + access token")
+                .message(message)
                 .status(HttpStatus.OK)
                 .data(authResponse)
                 .build());
@@ -122,6 +127,17 @@ public class AuthController {
                 .data("New password: " + newPassword)
                 .build());
     }
+
+//    @PostMapping("/auth/websocket-token")
+//    public ResponseEntity<?> getWebSocketToken(@RequestHeader("Authorization") String authHeader) {
+//        String accessToken = authHeader.replace("Bearer ", "");
+//        AuthResponse authResponse = authService.verifyTokenForWebSocket(token);
+//        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+//                .message("New refresh token + access token")
+//                .status(HttpStatus.OK)
+//                .data(authResponse)
+//                .build());
+//    }
 
 
 

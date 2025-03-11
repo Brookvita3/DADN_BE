@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @Data
+@AllArgsConstructor
 @Builder
 public class ResponseObject {
     @JsonProperty("message")

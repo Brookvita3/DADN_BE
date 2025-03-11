@@ -1,10 +1,8 @@
 package com.example.QLNK.services.auth;
 
-import com.example.QLNK.DTOS.token.RefreshTokenRequestDTO;
 import com.example.QLNK.config.jwt.JwtUtils;
 import com.example.QLNK.exception.CustomAuthException;
 import com.example.QLNK.exception.TokenExpiredException;
-import com.example.QLNK.model.token.RefreshToken;
 import com.example.QLNK.model.user.User;
 import com.example.QLNK.response.auth.AuthResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,25 +37,26 @@ public class AuthService {
             refreshTokenService.revokeRefreshTokenByEmail(user.getEmail());
 
             String accessToken = jwtUtils.generateAccessTokenWithRole(user.getEmail(), "USER");
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+            String refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
-            return new AuthResponse(accessToken, refreshToken.getToken());
+            return new AuthResponse(accessToken, refreshToken);
         } catch (BadCredentialsException e) {
             throw new CustomAuthException("Invalid email or password", HttpStatus.UNAUTHORIZED);
         }
     }
 
 
-    public AuthResponse verifyRefreshToken(RefreshTokenRequestDTO requestDTO) {
+    public AuthResponse verifyRefreshToken(String accessToken, String refreshToken) {
+        String email = jwtUtils.extractEmail(accessToken);
 
-        RefreshToken refreshToken = refreshTokenService.findByToken(requestDTO.getRefreshToken())
-                .orElseThrow(() -> new TokenExpiredException("Invalid refresh token", HttpStatus.UNAUTHORIZED));
+        boolean isRefreshTokenValid = refreshTokenService.verifyRefreshToken(email, refreshToken);
+        String newAccessToken = jwtUtils.generateAccessTokenWithRole(email, "USER");
+        if (isRefreshTokenValid) {
+            return new AuthResponse(newAccessToken, null);
+        }
 
-        refreshTokenService.verifyExpiration(refreshToken);
-
-        String newAccessToken = jwtUtils.generateAccessTokenWithRole(refreshToken.getUser().getEmail(), "USER");
-
-        return new AuthResponse(newAccessToken, requestDTO.getRefreshToken());
+        String newRefreshToken = refreshTokenService.createRefreshToken(email);
+        return new AuthResponse(newAccessToken, newRefreshToken);
     }
 
 
@@ -82,6 +81,7 @@ public class AuthService {
         User user = getAuthenticatedUser(authentication);
 
         refreshTokenService.revokeRefreshTokenByEmail(user.getEmail());
+        refreshTokenService.setLogoutTimeByEmail(user.getEmail());
 
         new SecurityContextLogoutHandler().logout(request, response, authentication);
     }

@@ -1,13 +1,17 @@
 package com.example.QLNK.config.jwt;
 
+import com.example.QLNK.exception.CustomAuthException;
+import com.example.QLNK.response.ResponseObject;
 import com.example.QLNK.services.users.CustomUserDetailService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -31,9 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(token) && jwtUtils.validateSignatureToken(token)) {
+            if (StringUtils.hasText(token) && jwtUtils.validateToken(token)) {
                 String email = jwtUtils.extractEmail(token);
-
                 UserDetails userDetails = customUserDetailService.loadUserByUsername(email);
 
                 UsernamePasswordAuthenticationToken authentication =
@@ -41,6 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        }
+        catch (CustomAuthException e) {
+            System.out.println("Fail in validate token: " + e.getMessage());
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType("application/json");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(
+                    new ResponseObject(e.getMessage(), HttpStatus.UNAUTHORIZED, null)
+            ));
+            return;
         }
         catch (Exception e) {
             System.out.println("Fail in validate token: " + e.getMessage());

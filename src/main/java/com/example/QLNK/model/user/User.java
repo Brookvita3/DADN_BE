@@ -1,6 +1,5 @@
 package com.example.QLNK.model.user;
 
-import com.example.QLNK.model.token.RefreshToken;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,9 +34,6 @@ public class User implements UserDetails {
 
     @Column(name = "url_ava")
     private String urlava;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private RefreshToken refreshToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

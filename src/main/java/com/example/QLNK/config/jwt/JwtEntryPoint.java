@@ -5,6 +5,7 @@ import com.example.QLNK.response.ResponseObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.aspectj.bridge.IMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -16,15 +17,16 @@ import java.io.IOException;
 public class JwtEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-
         HttpStatus status = HttpStatus.UNAUTHORIZED;
+        String message = authException.getMessage();
+
         if (authException instanceof CustomAuthException) {
             status = ((CustomAuthException) authException).getHttpStatus();
         }
 
         // Tạo response object
         ResponseObject responseObject = ResponseObject.builder()
-                .message(authException.getMessage())
+                .message(message)
                 .status(status)
                 .data(null)
                 .build();

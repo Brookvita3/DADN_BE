@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,8 @@ public class JwtUtils {
     private long expirationTime;
 
     private SecretKey key;
+    private final RedisTemplate<String, String> redisStringTemplate;
+    private final RedisTemplate<String, Long> redisLongTemplate;
 
     @PostConstruct
     public void getSignInKey() {
@@ -51,7 +54,7 @@ public class JwtUtils {
                     .parseSignedClaims(token)
                     .getPayload();}
         catch (Exception e) {
-            return null;
+            throw new CustomAuthException("Fail in extract claims in token", HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -59,7 +62,15 @@ public class JwtUtils {
         try {
             return extractClaims(token).getSubject();}
         catch (Exception e) {
-            return null;
+            throw new CustomAuthException("Fail in extract email in token", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    public Date extractIat(String token) {
+        try {
+            return extractClaims(token).getIssuedAt();}
+        catch (Exception e) {
+            throw new CustomAuthException("Fail in extract email in token", HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -67,7 +78,7 @@ public class JwtUtils {
         try {
             return extractClaims(token).get("role", String.class);}
         catch (Exception e) {
-            return null;
+            throw new CustomAuthException("Fail in extract role in token", HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -94,6 +105,22 @@ public class JwtUtils {
         } catch (Exception e) {
             throw new CustomAuthException("Fail in validate subject token", HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    public boolean validateToken(String token) {
+        String email = extractClaims(token).getSubject();
+        Long logoutTime = redisLongTemplate.opsForValue().get("logout:user:" + email);
+
+        if (logoutTime == null) {
+            throw new CustomAuthException("You are logged out", HttpStatus.UNAUTHORIZED);
+        }
+
+        long tokenIat = extractIat(token).getTime();
+        long logoutTimestamp = logoutTime * 1000;
+
+        if (tokenIat < logoutTimestamp)
+            throw new CustomAuthException("Access Token has been revoked, require log in", HttpStatus.UNAUTHORIZED);
+        return validateSignatureToken(token) && validateSubjectToken(token);
     }
 
     public String generatePasswordToken(String email) {
