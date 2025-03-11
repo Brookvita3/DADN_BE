@@ -42,7 +42,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers( "/", "/auth/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
-                .requestMatchers("/auth/logout"git , "/auth/refresh-token").authenticated()
+                .requestMatchers("/auth/logout", "/auth/refresh-token").authenticated()
                 .anyRequest().authenticated()
         );
 
